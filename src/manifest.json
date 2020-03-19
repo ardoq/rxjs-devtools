@@ -33,7 +33,8 @@
   "web_accessible_resources": [
     "content.styles.css",
     "icon-128.png",
-    "icon-34.png"
+    "icon-34.png",
+    "injectedScript.bundle.js"
   ],
   "manifest_version": 2,
   "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'"
