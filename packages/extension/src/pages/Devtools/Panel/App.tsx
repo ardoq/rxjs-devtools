@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import Actions from './Actions';
+import ListObservables from './ListObservables';
 import styled from 'styled-components';
 import { ThemeProvider, createMuiTheme, Paper } from '@material-ui/core';
 
@@ -19,7 +19,7 @@ class App extends Component {
     return (
       <ThemeProvider theme={darkTheme}>
         <Wrapper>
-          <Actions />
+          <ListObservables />
         </Wrapper>
       </ThemeProvider>
     );

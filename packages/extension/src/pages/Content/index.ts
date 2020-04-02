@@ -6,13 +6,12 @@
 import {
   CONTENT_BACKGROUND_CONNECT,
   PANEL_MESSAGE,
-} from '../rxjs-spy/devtools/consts';
+} from '../../../../shared/src/consts';
 import {
   Connection,
-  Message,
   Extension,
-  Post,
-} from '../rxjs-spy/devtools/interfaces';
+  PostMessage
+} from '../../../../shared/src/interfaces';
 
 const backgroundConnection = chrome.runtime.connect({
   name: CONTENT_BACKGROUND_CONNECT,
@@ -33,7 +32,7 @@ window.addEventListener('message', event => {
 });
 
 backgroundConnection.onMessage.addListener(message => {
-  const { postType } = message as Post;
+  const { postType } = message as PostMessage;
   if (postType === PANEL_MESSAGE) {
     window.postMessage({ ...message, source: 'rx-spy-devtools-panel' }, '*');
   }

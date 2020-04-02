@@ -4,32 +4,60 @@ export interface Extension {
 
 export interface Connection {
   disconnect(): void;
-  post(message: Message): Post;
+  post(message: BatchMessage): PostMessage;
   subscribe(
-    next: (message: Post) => void
+    next: (message: PostMessage) => void
   ): {
     unsubscribe(): void;
   };
   _posts: number;
   _connected: boolean;
   _listener: ((event: MessageEvent) => void) | null;
-  _subscribers: ((message: Post) => void)[];
+  _subscribers: ((message: PostMessage) => void)[];
 }
 
 export enum MessageTypes {
-  BATCH = 'batch',
+  CONNECT = 'connect',
+  NOTIFICATION = 'notification',
   BROADCAST = 'broadcast',
-  RESPONSE = 'response',
-  REQUEST = 'request'
+  BATCH = 'batch'
 }
 
-export interface Message {
-  messageType: MessageTypes;
-  [key: string]: any;
-}
-
-export interface Post extends Message {
-  [key: string]: any;
+interface PostMessageBase {
   postId: string;
   postType: string;
+}
+
+export type BatchMessage = {
+  messageType: MessageTypes.BATCH;
+  data: Message[];
+}
+
+export type BatchPostMessage = PostMessageBase & BatchMessage;
+
+export type PostMessage = BatchPostMessage & {
+  messageType: MessageTypes.CONNECT
+};
+
+export type Message = {
+  messageType: MessageTypes.NOTIFICATION;
+  data: ObservableNotification;
+}
+
+export enum NotificationType {
+  NEXT = 'next',
+  ERROR = 'error',
+  COMPLETE = 'complete'
+}
+
+export interface ObservableNotification {
+  notificationType: NotificationType,
+  prefix: 'before' | 'after',
+  id: string,
+  tick: number,
+  timestamp: number,
+  observable: {
+    value?: any,
+    tag: string
+  }
 }

@@ -11,7 +11,11 @@ import {
   PANEL_BACKGROUND_CONNECT,
   PANEL_BACKGROUND_INIT,
   PANEL_MESSAGE,
-} from '../rxjs-spy/devtools/consts';
+} from '../../../../shared/src/consts';
+
+import {
+  PostMessage
+} from '../../../../shared/src/interfaces';
 
 import { fromEventPattern } from 'rxjs';
 import {
@@ -24,8 +28,7 @@ import {
   tap,
 } from 'rxjs/operators';
 
-type Message = any;
-type MessageListener = (message: Message) => void;
+type PostMessageListener = (message: PostMessage) => void;
 type Port = chrome.runtime.Port;
 type PortListener = (port: chrome.runtime.Port) => void;
 type TabId = any;
@@ -45,9 +48,9 @@ const ports = fromEventPattern<Port>(
 ).pipe(share());
 
 const messages = (port: Port, teardown: () => void) =>
-  fromEventPattern<[Message, Port]>(
-    handler => port.onMessage.addListener(handler as MessageListener),
-    handler => port.onMessage.removeListener(handler as MessageListener)
+  fromEventPattern<[PostMessage, Port]>(
+    handler => port.onMessage.addListener(handler as PostMessageListener),
+    handler => port.onMessage.removeListener(handler as PostMessageListener)
   ).pipe(
     map(([message]) => message),
     finalize(teardown),
@@ -109,32 +112,29 @@ panelMessages
 const contentMessages = ports.pipe(
   filter(
     port =>
-      port &&
-      port.sender &&
-      port.sender.tab &&
-      port.name === CONTENT_BACKGROUND_CONNECT
+      Boolean(port?.sender?.tab && port.name === CONTENT_BACKGROUND_CONNECT)
   ),
-  map(port => ({ key: port.sender.tab.id, port })),
+  map(port => ({ key: port?.sender?.tab?.id, port })),
   tap(({ key, port }) => {
-    const connection = connections[key];
+    const connection = connections[key!];
     console.log('Connection to injected content script initialized');
     if (connection) {
       connection.contentPort = port;
     } else {
-      connections[key] = { contentPort: port, panelPort: null };
+      connections[key!] = { contentPort: port, panelPort: null };
     }
   }),
   mergeMap(
     ({ key, port }) =>
       messages(port, () => {
-        connections[key].contentPort = null;
+        connections[key!].contentPort = null;
       }),
     ({ key, port }, message) => ({ key, port, message })
   )
 );
 
 contentMessages.subscribe(({ key, port, message }) => {
-  const connection = connections[key];
+  const connection = connections[key!];
   if (!connection) {
     console.warn('No connection');
   } else if (message.postType === CONTENT_MESSAGE) {

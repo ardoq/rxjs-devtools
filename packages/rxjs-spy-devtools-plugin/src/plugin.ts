@@ -1,6 +1,6 @@
 import { BasePlugin, inferPath, inferType } from 'rxjs-spy';
 import { Spy } from 'rxjs-spy/spy-interface';
-import { Observable, Subscription } from 'rxjs';
+import { Observable, Subscription, BehaviorSubject, Subject } from 'rxjs';
 import {
   Response,
   Notification as NotificationPayload,
@@ -10,13 +10,15 @@ import {
 } from '../../shared/src/legacyInterfaces';
 import {
   Connection,
-  Post,
+  PostMessage,
   Extension,
   Message,
   MessageTypes,
+  ObservableNotification,
+  NotificationType
 } from '../../shared/src/interfaces';
 import { SubscriptionRef, SubscriberRef } from 'rxjs-spy/subscription-ref';
-import { filter, map } from 'rxjs/operators';
+import { filter, map, bufferTime } from 'rxjs/operators';
 import {
   EXTENSION_KEY,
   MESSAGE_REQUEST,
@@ -65,18 +67,22 @@ interface PluginRecord {
 }
 
 let idCounter = 0;
-const identify = (args: any) => String(idCounter++);
+const identify = (args?: any) => String(idCounter++);
 
 export default class DevToolsPlugin extends BasePlugin {
   private batchQueue_: Message[];
   private batchTimeoutId_: any;
   private connection_: Connection | undefined;
-  private posts_!: Observable<Post>;
+  private posts_!: Observable<PostMessage>;
   private plugins_: Map<string, PluginRecord>;
   private responses_!: Observable<Response>;
   private snapshotHinted_: boolean;
   private spy_: Spy;
   private subscription_!: Subscription;
+  private notificationSubscription!: Subscription;
+
+  // Stream of notifications that are pushed to the dev tools
+  private notification$: Subject<ObservableNotification>;
 
   constructor(spy: Spy) {
     super('devTools');
@@ -86,22 +92,39 @@ export default class DevToolsPlugin extends BasePlugin {
     this.plugins_ = new Map<string, PluginRecord>();
     this.snapshotHinted_ = false;
     this.spy_ = spy;
+    this.notification$ = new Subject();
 
     if (typeof window !== 'undefined' && window[EXTENSION_KEY]) {
       const extension = window[EXTENSION_KEY] as Extension;
       this.connection_ = extension.connect({ version: spy.version });
       console.log('Extension connected');
 
-      this.posts_ = new Observable<Post>(observer =>
+
+      this.notificationSubscription = this.notification$.pipe(
+        bufferTime(500, null, BATCH_NOTIFICATIONS),
+        filter(buffer => buffer.length > 0)
+      ).subscribe(notifications => {
+        console.log('Posting notifications from rxjs-spy', notifications);
+        this.connection_.post({
+          messageType: MessageTypes.BATCH,
+          data: notifications.map(notification => ({
+            messageType: MessageTypes.NOTIFICATION,
+            data: notification
+          }))
+        });
+      })
+
+      this.posts_ = new Observable<PostMessage>(observer =>
         this.connection_
           ? this.connection_.subscribe(post => observer.next(post))
           : () => { }
       );
 
+      // @ts-ignore
       this.responses_ = this.posts_.pipe(
-        map(request => {
-          console.log(request);
-          return (request as unknown) as Response;
+        map(response => {
+          console.log('Response from rxjs-spy-devtools', response);
+          // return (request as unknown) as Response;
         })
       );
 
@@ -109,69 +132,69 @@ export default class DevToolsPlugin extends BasePlugin {
         .pipe(hide())
         .subscribe((response: Response) => {
           if (this.connection_) {
-            this.connection_.post(response);
+            // this.connection_.post(response);
           }
         });
     }
   }
 
-  afterSubscribe(ref: SubscriptionRef): void {
-    this.batchNotification_({
-      notification: 'subscribe',
-      prefix: 'after',
-      ref,
-    });
-  }
+  // afterSubscribe(ref: SubscriptionRef): void {
+  //   this.batchNotification_({
+  //     notification: 'subscribe',
+  //     prefix: 'after',
+  //     ref,
+  //   });
+  // }
 
-  afterUnsubscribe(ref: SubscriptionRef): void {
-    this.batchNotification_({
-      notification: 'unsubscribe',
-      prefix: 'after',
-      ref,
-    });
-  }
+  // afterUnsubscribe(ref: SubscriptionRef): void {
+  //   this.batchNotification_({
+  //     notification: 'unsubscribe',
+  //     prefix: 'after',
+  //     ref,
+  //   });
+  // }
 
-  beforeComplete(ref: SubscriptionRef): void {
-    this.batchNotification_({
-      notification: 'complete',
-      prefix: 'before',
-      ref,
-    });
-  }
+  // beforeComplete(ref: SubscriptionRef): void {
+  //   this.batchNotification_({
+  //     notification: 'complete',
+  //     prefix: 'before',
+  //     ref,
+  //   });
+  // }
 
-  beforeError(ref: SubscriptionRef, error: any): void {
-    this.batchNotification_({
-      error,
-      notification: 'error',
-      prefix: 'before',
-      ref,
-    });
-  }
+  // beforeError(ref: SubscriptionRef, error: any): void {
+  //   this.batchNotification_({
+  //     error,
+  //     notification: 'error',
+  //     prefix: 'before',
+  //     ref,
+  //   });
+  // }
 
   beforeNext(ref: SubscriptionRef, value: any): void {
-    this.batchNotification_({
-      notification: 'next',
+    this.sendNotification({
+      notificationType: NotificationType.NEXT,
       prefix: 'before',
       ref,
-      value,
+      value: serialize(value)
     });
   }
 
-  beforeSubscribe(ref: SubscriberRef): void {
-    this.batchNotification_({
-      notification: 'subscribe',
-      prefix: 'before',
-      ref,
-    });
-  }
+  // beforeSubscribe(ref: SubscriberRef): void {
+  //   this.batchNotification_({
+  //     notification: 'subscribe',
+  //     prefix: 'before',
+  //     ref,
+  //   });
+  // }
 
-  beforeUnsubscribe(ref: SubscriptionRef): void {
-    this.batchNotification_({
-      notification: 'unsubscribe',
-      prefix: 'before',
-      ref,
-    });
-  }
+  // beforeUnsubscribe(ref: SubscriptionRef): void {
+  //   this.batchNotification_({
+  //     notification: 'unsubscribe',
+  //     prefix: 'before',
+  //     ref,
+  //   });
+  // }
 
   teardown(): void {
     if (this.batchTimeoutId_ !== undefined) {
@@ -183,69 +206,94 @@ export default class DevToolsPlugin extends BasePlugin {
       this.connection_ = undefined;
       this.subscription_.unsubscribe();
     }
+    this.notificationSubscription.unsubscribe();
   }
 
-  private batchMessage_(message: Message): void {
-    // If there are numerous, high-frequency observables, the connection
-    // can become overloaded. Post the messages in batches, at a sensible
-    // interval.
 
-    if (this.batchTimeoutId_ !== undefined) {
-      this.batchQueue_.push(message);
-    } else {
-      this.batchQueue_ = [message];
-      this.batchTimeoutId_ = setTimeout(() => {
-        const { connection_ } = this;
-        if (connection_) {
-          console.log(
-            'Posting batch messages to connection',
-            this.batchQueue_.length
-          );
-          connection_.post({
-            messageType: MessageTypes.BROADCAST,
-            messages: this.batchQueue_,
-          });
-          this.batchTimeoutId_ = undefined;
-          this.batchQueue_ = [];
-        }
-      }, BATCH_MILLISECONDS);
-    }
-  }
 
-  private batchNotification_(notificationRef: NotificationRef): void {
-    const observable = notificationRef.ref.observable;
+  private sendNotification({ notificationType, value, ref, prefix }:
+    { notificationType: NotificationType, value: any, prefix: 'before' | 'after', ref: SubscriberRef }
+  ): void {
+    const observable = ref.observable;
     const tag = read(observable);
-    // For now skip anything but action$
-    if (tag !== 'action$') {
+    // For now skip anything that doesn't have a tag
+    if (!tag) {
       return;
     }
-    const { connection_ } = this;
-    if (connection_) {
-      if (this.snapshotHinted_) {
-        return;
+    this.notification$.next({
+      id: identify(),
+      notificationType,
+      prefix,
+      tick: this.spy_.tick,
+      timestamp: Date.now(),
+      observable: {
+        tag,
+        value
       }
-
-      const count = this.batchQueue_.reduce(
-        (c, message) => (message.broadcastType === 'notification' ? c + 1 : c),
-        0
-      );
-      if (count > BATCH_NOTIFICATIONS) {
-        this.batchQueue_ = this.batchQueue_.filter(
-          message => message.broadcastType !== 'notification'
-        );
-        this.batchMessage_({
-          broadcastType: 'snapshot-hint',
-          messageType: MessageTypes.BROADCAST,
-        });
-      } else {
-        this.batchMessage_({
-          broadcastType: 'notification',
-          messageType: MessageTypes.BROADCAST,
-          notification: this.toNotification_(notificationRef),
-        });
-      }
-    }
+    });
   }
+
+  // private batchMessage_(message: Message): void {
+  //   // If there are numerous, high-frequency observables, the connection
+  //   // can become overloaded. Post the messages in batches, at a sensible
+  //   // interval.
+
+  //   if (this.batchTimeoutId_ !== undefined) {
+  //     this.batchQueue_.push(message);
+  //   } else {
+  //     this.batchQueue_ = [message];
+  //     this.batchTimeoutId_ = setTimeout(() => {
+  //       const { connection_ } = this;
+  //       if (connection_) {
+  //         console.log(
+  //           'Posting batch messages to connection',
+  //           this.batchQueue_.length
+  //         );
+  //         connection_.post({
+  //           messageType: MessageTypes.BROADCAST,
+  //           messages: this.batchQueue_,
+  //         });
+  //         this.batchTimeoutId_ = undefined;
+  //         this.batchQueue_ = [];
+  //       }
+  //     }, BATCH_MILLISECONDS);
+  //   }
+  // }
+
+  // private batchNotification_(notificationRef: NotificationRef): void {
+  //   const observable = notificationRef.ref.observable;
+  //   const tag = read(observable);
+  //   // For now skip anything but action$
+  //   if (tag !== 'action$') {
+  //     return;
+  //   }
+  //   const { connection_ } = this;
+  //   if (connection_) {
+  //     if (this.snapshotHinted_) {
+  //       return;
+  //     }
+
+  //     const count = this.batchQueue_.reduce(
+  //       (c, message) => (message.broadcastType === 'notification' ? c + 1 : c),
+  //       0
+  //     );
+  //     if (count > BATCH_NOTIFICATIONS) {
+  //       this.batchQueue_ = this.batchQueue_.filter(
+  //         message => message.broadcastType !== 'notification'
+  //       );
+  //       this.batchMessage_({
+  //         broadcastType: 'snapshot-hint',
+  //         messageType: MessageTypes.BROADCAST,
+  //       });
+  //     } else {
+  //       this.batchMessage_({
+  //         broadcastType: 'notification',
+  //         messageType: MessageTypes.BROADCAST,
+  //         notification: this.toNotification_(notificationRef),
+  //       });
+  //     }
+  //   }
+  // }
 
   private toNotification_(
     notificationRef: NotificationRef

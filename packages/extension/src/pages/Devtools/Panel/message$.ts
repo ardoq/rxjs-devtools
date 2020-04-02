@@ -1,16 +1,17 @@
 import {
   PANEL_BACKGROUND_CONNECT,
   PANEL_BACKGROUND_INIT,
-} from '../../rxjs-spy/devtools/consts';
+} from '../../../../../shared/src/consts';
 import { fromEventPattern, Observable } from 'rxjs';
 import { map, share, tap } from 'rxjs/operators';
-import { Post } from '../../rxjs-spy/devtools/interfaces';
+import { PostMessage } from '../../../../../shared/src/interfaces';
 import { MessageListener } from './types';
+import { tag } from 'rxjs-spy/operators';
 
-let message$: Observable<Post>;
+let postMessage$: Observable<PostMessage>;
 
-const getMessage$ = () => {
-  if (!message$) {
+const getPostMessage$ = () => {
+  if (!postMessage$) {
     const tabId = chrome.devtools.inspectedWindow.tabId;
     const _backgroundConnection = chrome.runtime.connect({
       name: PANEL_BACKGROUND_CONNECT,
@@ -20,7 +21,7 @@ const getMessage$ = () => {
       tabId,
     });
 
-    message$ = fromEventPattern<[Post, chrome.runtime.Port]>(
+    postMessage$ = fromEventPattern<[PostMessage, chrome.runtime.Port]>(
       handler =>
         _backgroundConnection.onMessage.addListener(handler as MessageListener),
       handler =>
@@ -28,6 +29,7 @@ const getMessage$ = () => {
           handler as MessageListener
         )
     ).pipe(
+      tag('postMessage$'),
       map(([post]) => post),
       share(),
       tap(message => {
@@ -35,7 +37,7 @@ const getMessage$ = () => {
       })
     );
   }
-  return message$;
+  return postMessage$;
 };
 
-export default getMessage$;
+export default getPostMessage$;

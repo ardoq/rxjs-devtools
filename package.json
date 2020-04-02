@@ -2,6 +2,7 @@
   "name": "root",
   "private": true,
   "devDependencies": {
+    "@ardoq/shared-configs": "^0.1.1",
     "lerna": "^3.20.2"
   }
 }

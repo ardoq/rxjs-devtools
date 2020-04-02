@@ -8,8 +8,7 @@
   ],
   "references": [
     {
-      "path": "../shared/",
-      "prepend": true
+      "path": "../shared/"
     }
   ]
 }
