@@ -5,8 +5,9 @@ import {
 import { fromEventPattern, Observable } from 'rxjs';
 import { map, share, tap } from 'rxjs/operators';
 import { PostMessage } from '../../../../../shared/src/interfaces';
-import { MessageListener } from './types';
 import { tag } from 'rxjs-spy/operators';
+
+type MessageListener = (message: any) => void;
 
 let postMessage$: Observable<PostMessage>;
 

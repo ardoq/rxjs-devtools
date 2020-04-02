@@ -6,7 +6,7 @@
 export const CONTENT_BACKGROUND_CONNECT = 'content-background-connect';
 export const CONTENT_MESSAGE = 'content-message';
 
-export const EXTENSION_KEY = '__RX_SPY_EXTENSION__';
+export const EXTENSION_KEY = '__RXJS_DEVTOOLS__';
 
 export const PANEL_BACKGROUND_CONNECT = 'panel-background-connect';
 export const PANEL_BACKGROUND_INIT = 'panel-background-init';

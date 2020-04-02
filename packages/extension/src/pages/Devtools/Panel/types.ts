@@ -1,2 +1,6 @@
-export type Message = any;
-export type MessageListener = (message: Message) => void;
+export type StreamEmission = {
+  id: string;
+  tag: string;
+  value: any;
+  timestamp: number;
+};

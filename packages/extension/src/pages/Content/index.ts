@@ -102,7 +102,7 @@ function installExtension(window: Window) {
     }
   }
 
-  Object.defineProperty(window, '__RX_SPY_EXTENSION__', {
+  Object.defineProperty(window, '__RXJS_DEVTOOLS__', {
     value: new ExtensionImpl(),
   });
 }

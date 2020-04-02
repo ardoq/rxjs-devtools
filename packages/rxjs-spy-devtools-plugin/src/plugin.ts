@@ -180,6 +180,15 @@ export default class DevToolsPlugin extends BasePlugin {
     });
   }
 
+  // afterNext(ref: SubscriptionRef, value: any): void {
+  //   this.sendNotification({
+  //     notificationType: NotificationType.NEXT,
+  //     prefix: 'after',
+  //     ref,
+  //     value: serialize(value)
+  //   });
+  // }
+
   // beforeSubscribe(ref: SubscriberRef): void {
   //   this.batchNotification_({
   //     notification: 'subscribe',
