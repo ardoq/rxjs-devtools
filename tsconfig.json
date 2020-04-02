@@ -1,35 +1,22 @@
 {
-  "compilerOptions": {
-    "module": "esnext",
-    "outDir": "dist/",
-    "noImplicitAny": true,
-    "removeComments": true,
-    "preserveConstEnums": true,
-    "sourceMap": true,
-    "target": "ESNext",
-    "allowJs": false,
-    "checkJs": false,
-    "jsx": "react",
-    "pretty": true,
-    "skipLibCheck": true,
-    "strict": true,
-    "moduleResolution": "node",
-    "esModuleInterop": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "ESNext"
-    ],
-    "allowSyntheticDefaultImports": true,
-    "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true,
-    "isolatedModules": false
-  },
-  "include": [
-    "src"
-  ],
   "exclude": [
     "node_modules",
-    "**/*.spec.ts"
-  ]
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "target": "es5",
+    "module": "esnext",
+    "lib": [
+      "dom",
+      "esnext"
+    ],
+    "importHelpers": true,
+    "declaration": true,
+    "sourceMap": true,
+    "rootDir": "./",
+    "moduleResolution": "node",
+    "jsx": "react",
+    "esModuleInterop": true,
+    "downlevelIteration": true,
+  }
 }

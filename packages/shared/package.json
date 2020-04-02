@@ -1,0 +1,21 @@
+{
+  "name": "shared",
+  "version": "0.0.0",
+  "description": "> TODO: description",
+  "author": "Anton Abilov <anton_abilov@hotmail.com>",
+  "homepage": "https://github.com/ardoq/rxjs-devtools#readme",
+  "license": "ISC",
+  "files": [
+    "src"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ardoq/rxjs-devtools.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: run tests from root\" && exit 1"
+  },
+  "bugs": {
+    "url": "https://github.com/ardoq/rxjs-devtools/issues"
+  }
+}
