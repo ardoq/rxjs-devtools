@@ -1,12 +1,12 @@
 {
-  "name": "Chrome Extension with React & Webpack",
+  "name": "RxJS Devtools",
   "options_page": "options.html",
   "background": {
     "page": "background.html"
   },
   "devtools_page": "devtools.html",
   "icons": {
-    "128": "icon-128.png"
+    "128": "rxjs-logo.png"
   },
   "content_scripts": [
     {
@@ -25,8 +25,8 @@
   ],
   "web_accessible_resources": [
     "content.styles.css",
-    "icon-128.png",
-    "icon-34.png",
+    "rxjs-logo.png",
+    "rxjs-logo.png",
     "injectedScript.bundle.js"
   ],
   "manifest_version": 2,

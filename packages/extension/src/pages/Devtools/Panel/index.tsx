@@ -4,7 +4,7 @@ import App from './App';
 import { create } from 'rxjs-spy';
 import DevToolsPlugin from 'rxjs-spy-devtools-plugin/dist';
 
-console.log('Dev tools panel initialized');
+console.log('Devtools panel initialized');
 const spy = create();
 const devtoolsPlugin = new DevToolsPlugin(spy);
 spy.plug(devtoolsPlugin);

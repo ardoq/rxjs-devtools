@@ -81,7 +81,7 @@ export default class DevToolsPlugin extends BasePlugin {
   private subscription_!: Subscription;
   private notificationSubscription!: Subscription;
 
-  // Stream of notifications that are pushed to the dev tools
+  // Stream of notifications that are pushed to the devtools
   private notification$: Subject<ObservableNotification>;
 
   constructor(spy: Spy) {

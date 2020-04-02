@@ -1,6 +1,6 @@
-chrome.devtools.panels.create('My panel', 'icon-34.png', 'panel.html', function(
+chrome.devtools.panels.create('RxJS Devtools', 'rxjs-logo.png', 'panel.html', function (
   panel
 ) {
   // code invoked on panel creation
-  console.log(panel);
+  console.log('Panel initialized', panel);
 });

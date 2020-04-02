@@ -1,5 +1,4 @@
-import '../../assets/img/icon-34.png';
-import '../../assets/img/icon-128.png';
+import '../../assets/img/rxjs-logo.png';
 /**
  * @license Use of this source code is governed by an MIT-style license that
  * can be found in the LICENSE file at https://github.com/cartant/rxjs-spy-devtools
