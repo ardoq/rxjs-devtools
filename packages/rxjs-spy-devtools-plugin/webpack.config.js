@@ -5,7 +5,7 @@ const DtsBundleWebpack = require('dts-bundle-webpack')
 
 module.exports = {
   entry: ['./src/index.ts'],
-  devtool: 'inline-source-map',
+  devtool: 'source-map',
   module: {
     rules: [
       {
@@ -21,14 +21,26 @@ module.exports = {
     },
     extensions: ['.tsx', '.ts', '.js', '.json'],
   },
+  externals: {
+    'rxjs': {
+      commonjs: 'rxjs',
+      commonjs2: 'rxjs',
+      amd: 'rxjs'
+    },
+    'rxjs-spy': {
+      commonjs: 'rxjs-spy',
+      commonjs2: 'rxjs-spy',
+      amd: 'rxjs-spy'
+    },
+  },
   output: {
     path: `${__dirname}/dist`,
     filename: 'index.js',
+    library: 'rxjs-spy-devtools-plugin',
+    libraryTarget: 'umd'
   },
   plugins: [
-    new CleanWebpackPlugin({
-      verbose: true,
-    }),
+    new CleanWebpackPlugin(),
     new DtsBundleWebpack({
       out: 'index.d.ts',
       name: 'rxjs-spy-devtools-plugin',
