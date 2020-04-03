@@ -1,7 +1,7 @@
 {
   "name": "rxjs-devtools-extension",
   "version": "0.0.1",
-  "description": "RxJS Devtools Extension",
+  "description": "RxJS DevTools extension for debugging streams",
   "license": "MIT",
   "repository": {
     "type": "git",

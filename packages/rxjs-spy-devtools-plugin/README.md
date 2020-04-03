@@ -2,10 +2,9 @@
 
 ## Usage
 
-1. Install in your project:
-`yarn add rxjs-spy-devtools-plugin`
+1. Install in your project: `yarn add rxjs-spy-devtools-plugin`
 
-2. Add the plugin to your spy
+2. Add the plugin to your: `rxjs-spy`
 
 ```typescript
 import DevToolsPlugin from 'rxjs-spy-devtools-plugin';
@@ -16,6 +15,7 @@ const devtoolsPlugin = new DevToolsPlugin(spy, {
 });
 spy.plug(devtoolsPlugin);
 
+// We must teardown the spy if we're hot-reloading:
 if (module.hot) {
   if (module.hot) {
     module.hot.dispose(() => {
@@ -25,7 +25,9 @@ if (module.hot) {
 }
 ```
 
-3. Load the [chrome extension](https://github.com/ardoq/rxjs-devtools)
+3. [Tag the streams](https://github.com/cartant/rxjs-spy#core-concepts) that you wish to inspect in devtools.
+
+4. Load the [chrome extension](../../README.md#installing-the-extension-in-developer-mode)
 
 
 ## Develop
