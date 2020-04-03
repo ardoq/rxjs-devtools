@@ -25,6 +25,8 @@ if (module.hot) {
 }
 ```
 
+3. Load the [chrome extension](https://github.com/ardoq/rxjs-devtools)
+
 
 ## Develop
 `yarn start`

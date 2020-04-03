@@ -1,6 +1,7 @@
 {
   "name": "rxjs-spy-devtools-plugin",
   "version": "0.0.1",
+  "description": "Devtools plugin for rxjs-spy",
   "author": "Anton Abilov <anton_abilov@hotmail.com>",
   "homepage": "https://github.com/ardoq/rxjs-devtools#readme",
   "license": "MIT",
