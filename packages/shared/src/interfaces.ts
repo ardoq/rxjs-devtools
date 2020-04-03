@@ -35,7 +35,7 @@ export type BatchMessage = {
 
 export type BatchPostMessage = PostMessageBase & BatchMessage;
 
-export type PostMessage = BatchPostMessage & {
+export type PostMessage = BatchPostMessage | {
   messageType: MessageTypes.CONNECT
 };
 

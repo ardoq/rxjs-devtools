@@ -1,5 +1,3 @@
-import { Message, Post, MessageTypes } from "./interfaces";
-
 export interface DeckStats {
   id: string;
   notifications: number;
@@ -12,16 +10,6 @@ export interface Graph {
   sink: string | null;
   sources: string[];
   sourcesFlushed: number;
-}
-export interface Batch extends Message {
-  [key: string]: any;
-  messages: Message[];
-  messageType: MessageTypes.BATCH;
-}
-export interface Broadcast extends Message {
-  [key: string]: any;
-  broadcastType: string;
-  messageType: MessageTypes.BROADCAST;
 }
 export interface Notification {
   id: string;
@@ -59,17 +47,6 @@ export interface Paused {
   id: string;
   notifications: number;
   subscriptions: number;
-}
-export interface Request extends Message {
-  [key: string]: any;
-  messageType: MessageTypes.REQUEST;
-  requestType: string;
-}
-export interface Response extends Message {
-  [key: string]: any;
-  error?: string;
-  messageType: MessageTypes.RESPONSE;
-  request: Post & Request;
 }
 export interface Snapshot {
   observables: ObservableSnapshot[];

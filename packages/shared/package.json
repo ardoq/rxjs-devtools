@@ -8,12 +8,14 @@
   "files": [
     "src"
   ],
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ardoq/rxjs-devtools.git"
   },
   "scripts": {
-    "test": "echo \"Error: run tests from root\" && exit 1"
+    "prepublishOnly": "tsc -b ."
   },
   "bugs": {
     "url": "https://github.com/ardoq/rxjs-devtools/issues"

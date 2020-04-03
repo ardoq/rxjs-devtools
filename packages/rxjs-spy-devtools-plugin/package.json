@@ -1,32 +1,40 @@
 {
   "name": "rxjs-spy-devtools-plugin",
-  "version": "0.0.0",
-  "description": "> TODO: description",
+  "version": "0.0.1",
   "author": "Anton Abilov <anton_abilov@hotmail.com>",
   "homepage": "https://github.com/ardoq/rxjs-devtools#readme",
   "license": "MIT",
-  "main": "src/index.ts",
-  "directories": {
-    "src": "src"
-  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "files": [
-    "lib"
+    "dist"
   ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/ardoq/rxjs-devtools.git"
   },
   "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
-    "lint": "yarn eslint --ext .ts src",
-    "prepare": "tsdx build"
+    "start": "webpack --watch --mode=development",
+    "build": "webpack --mode=production",
+    "lint": "yarn eslint --ext .ts src"
   },
   "bugs": {
     "url": "https://github.com/ardoq/rxjs-devtools/issues"
   },
   "devDependencies": {
-    "tsdx": "^0.13.1"
+    "@babel/cli": "^7.8.4",
+    "@babel/core": "^7.9.0",
+    "@babel/plugin-proposal-class-properties": "^7.8.3",
+    "@babel/preset-env": "^7.9.0",
+    "@babel/preset-typescript": "^7.9.0",
+    "clean-webpack-plugin": "^3.0.0",
+    "dts-bundle-webpack": "^1.0.2",
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1"
+  },
+  "peerDependencies": {
+    "rxjs-spy": "^7.5.1"
   },
   "dependencies": {
     "rxjs-spy": "^7.5.1"

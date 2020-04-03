@@ -4,19 +4,21 @@
   ],
   "compilerOptions": {
     "composite": true,
+    "declaration": true,
+    "declarationMap": true,
     "target": "es5",
     "module": "esnext",
     "lib": [
       "dom",
       "esnext"
     ],
+    "strict": true,
     "importHelpers": true,
-    "declaration": true,
     "sourceMap": true,
-    "rootDir": "./",
+    "rootDir": "./packages",
     "moduleResolution": "node",
     "jsx": "react",
     "esModuleInterop": true,
-    "downlevelIteration": true,
-  }
+    "downlevelIteration": true
+  },
 }

@@ -1,6 +1,16 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "composite": true
-  }
+    "outDir": "./dist",
+    "baseUrl": "./src",
+    "plugins": [
+      {
+        "transform": "@zerollup/ts-transform-paths"
+      }
+    ]
+  },
+  "files": [],
+  "include": [
+    "./src"
+  ],
 }

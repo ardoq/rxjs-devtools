@@ -1,11 +1,26 @@
 # `rxjs-spy-devtools-plugin`
 
-> TODO: description
-
 ## Usage
 
-```
-const rxjsSpyDevtoolsPlugin = require('rxjs-spy-devtools-plugin');
+1. Install in your project:
+`yarn add rxjs-spy-devtools-plugin`
 
-// TODO: DEMONSTRATE API
+2. Add the plugin to your spy
+
+```typescript
+import DevToolsPlugin from 'rxjs-spy-devtools-plugin';
+
+const spy = create();
+const devtoolsPlugin = new DevToolsPlugin(spy, {
+  verbose: false
+});
+spy.plug(devtoolsPlugin);
+
+if (module.hot) {
+  if (module.hot) {
+    module.hot.dispose(() => {
+      spy.teardown();
+    });
+  }
+}
 ```

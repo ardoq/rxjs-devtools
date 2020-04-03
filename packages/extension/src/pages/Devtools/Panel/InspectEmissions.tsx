@@ -25,7 +25,7 @@ const InspectEmissions = ({ selectedTag, emissions }: InspectEmissionsViewModel)
       <Typography variant="h5" gutterBottom>
         {selectedTag ?
           `Selected Tag: ${selectedTag}`
-          : 'All tagged emissions'}  ({emissions.length} recorded)
+          : 'All tags'}  ({emissions.length} emissions recorded)
       </Typography>
 
       <Grid container spacing={2}>

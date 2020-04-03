@@ -11,6 +11,7 @@ import {
   TextField,
 } from '@material-ui/core';
 import { MessageTypes } from '../../../../../shared/src/interfaces';
+import { isBatch } from '../../../../../shared/src/guards';
 import { Observable } from 'rxjs';
 import styled from 'styled-components';
 import { StreamEmission } from './types';
@@ -24,8 +25,10 @@ type ListObservablesViewModel = {
   };
 };
 
+const EMISSION_LIMIT = 250;
+
 const streamEmission$: Observable<ListObservablesViewModel> = getPostMessage$().pipe(
-  filter(({ messageType }) => messageType === MessageTypes.BATCH),
+  filter(isBatch),
   map(message => {
     return message.data
       .filter(msg => msg.messageType === MessageTypes.NOTIFICATION).map(({ data }) => {
@@ -37,7 +40,14 @@ const streamEmission$: Observable<ListObservablesViewModel> = getPostMessage$().
         } as StreamEmission;
       });
   }),
-  scan((values: StreamEmission[], next) => [...values, ...next], []),
+  scan((values: StreamEmission[], next) => {
+    const aboveLimit = values.length + next.length - EMISSION_LIMIT;
+    if (aboveLimit > 0) {
+      return [...values.slice(aboveLimit), ...next];
+    } else {
+      return [...values, ...next];
+    }
+  }, []),
   map(values => values.sort(sortByTimestamp)),
   map(values => ({
     emissionsByTag: groupBy(values, (value) => value.tag)
@@ -66,9 +76,10 @@ const ListObservables = () => {
   const allEmissionsSorted = Object.values(emissionsByTag).flatMap(a => a).sort(sortByTimestamp);
   return (
     <Grid container spacing={2}>
+      <Typography variant="h6" gutterBottom>Capped at {EMISSION_LIMIT} emissions due to performance limitations</Typography>
       <Grid item xs={3}>
         <Typography gutterBottom variant="h5">
-          Tagged stream emissions ({emissions.length} tags recorded)
+          Tagged streams ({emissions.length} tags recorded)
         </Typography>
         {/* <TextField placeholder="Filter by tag" onChange={(event) => setTagFilter(event.target.value)} /> */}
         <DenseTable
