@@ -6,7 +6,9 @@ import DevToolsPlugin from 'rxjs-spy-devtools-plugin';
 
 console.log('Devtools panel initialized');
 const spy = create();
-const devtoolsPlugin = new DevToolsPlugin(spy);
+const devtoolsPlugin = new DevToolsPlugin(spy, {
+  verbose: true
+});
 spy.plug(devtoolsPlugin);
 
 if (module.hot) {

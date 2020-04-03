@@ -111,4 +111,4 @@ const script = document.createElement('script');
 script.textContent = `;(${installExtension.toString()}(window))`;
 document.documentElement.appendChild(script);
 document.documentElement.removeChild(script);
-console.log('Installed rxjs-devtools extension');
+console.log('rxjs-devtools extension: Injected comunication script');

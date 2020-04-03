@@ -25,12 +25,12 @@ type Options = {
 
 const BATCH_MILLISECONDS = 100;
 const BATCH_NOTIFICATIONS = 150;
+const RETRY_INIT_TIME = 500;
 
 
 export default class DevToolsPlugin extends BasePlugin {
   public options: Options;
   private batchTimeoutId_: any;
-  private connection_: Connection | undefined;
   private spy_: Spy;
 
   // Stream of notifications that are pushed to the devtools
@@ -41,16 +41,23 @@ export default class DevToolsPlugin extends BasePlugin {
   private postMessage$: Observable<PostMessage>;
   private postMessageSubscription: Subscription;
 
+  private initRetries = 0;
+  private connection: Connection | undefined;
+
+
   constructor(spy: Spy, options: Options = { verbose: false }) {
     super('devTools');
     this.options = options;
-    this.log('Setting up');
     this.spy_ = spy;
     this.notification$ = new Subject();
+    this.initialize();
+  }
 
+  initialize() {
+    this.log('Connecting to dev tools extension');
     if (typeof window !== 'undefined' && window[EXTENSION_KEY]) {
       const extension = window[EXTENSION_KEY] as Extension;
-      this.connection_ = extension.connect({ version: spy.version });
+      this.connection = extension.connect({ version: this.spy_.version });
       this.log('Extension connected');
 
 
@@ -58,8 +65,8 @@ export default class DevToolsPlugin extends BasePlugin {
         bufferTime(BATCH_MILLISECONDS, null, BATCH_NOTIFICATIONS),
         filter(buffer => buffer.length > 0)
       ).subscribe(notifications => {
-        this.log('Posting batch notification from rxjs-spy-devtools-plugin', notifications);
-        this.connection_.post({
+        this.log('Posting batch notification', notifications);
+        this.connection.post({
           messageType: MessageTypes.BATCH,
           data: notifications.map(notification => ({
             messageType: MessageTypes.NOTIFICATION,
@@ -69,20 +76,30 @@ export default class DevToolsPlugin extends BasePlugin {
       })
 
       this.postMessage$ = new Observable<PostMessage>(observer =>
-        this.connection_
-          ? this.connection_.subscribe(post => observer.next(post))
+        this.connection
+          ? this.connection.subscribe(post => observer.next(post))
           : () => { }
       );
 
       this.postMessageSubscription = this.postMessage$
         .subscribe(message => {
           this.log('Message from extension', message);
-          if (this.connection_) {
-            // this.connection_.post(response);
+          if (this.connection) {
+            // this.connection.post(response);
           }
         });
+    } else {
+      this.log('Failed to connect, missing window key.');
+      this.initRetries += 1;
+      if (this.initRetries <= 5) {
+        this.log(`Trying again in ${RETRY_INIT_TIME}ms`);
+        setTimeout(() => this.initialize(), RETRY_INIT_TIME);
+      } else {
+        this.log('Failed to connect after 5 retries');
+      }
     }
   }
+
   beforeNext(ref: SubscriptionRef, value: any): void {
     this.sendNotification({
       notificationType: NotificationType.NEXT,
@@ -97,9 +114,9 @@ export default class DevToolsPlugin extends BasePlugin {
       clearTimeout(this.batchTimeoutId_);
       this.batchTimeoutId_ = undefined;
     }
-    if (this.connection_) {
-      this.connection_.disconnect();
-      this.connection_ = undefined;
+    if (this.connection) {
+      this.connection.disconnect();
+      this.connection = undefined;
     }
     this.postMessageSubscription?.unsubscribe();
     this.notificationSubscription?.unsubscribe();
