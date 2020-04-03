@@ -32,10 +32,16 @@ const streamEmission$: Observable<ListObservablesViewModel> = getPostMessage$().
   map(message => {
     return message.data
       .filter(msg => msg.messageType === MessageTypes.NOTIFICATION).map(({ data }) => {
+        let value = {
+          'error': 'Parsing observable value failed'
+        };
+        try {
+          value = JSON.parse(data.observable.value);
+        } catch { }
         return {
           id: data.id,
           tag: data.observable.tag,
-          value: JSON.parse(data.observable.value),
+          value,
           timestamp: data.timestamp,
         } as StreamEmission;
       });
