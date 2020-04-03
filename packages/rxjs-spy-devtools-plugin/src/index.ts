@@ -16,17 +16,6 @@ import { SubscriptionRef, SubscriberRef } from 'rxjs-spy/subscription-ref';
 import { filter, bufferTime } from 'rxjs/operators';
 import { read } from 'rxjs-spy/match';
 
-// TO-DO: Remove lodash dependency
-import {
-  isPlainObject,
-  isArray,
-  isBoolean,
-  isNumber,
-  isString,
-  isUndefined,
-  overSome,
-} from 'lodash';
-
 let idCounter = 0;
 const identify = (args?: any) => String(idCounter++);
 
