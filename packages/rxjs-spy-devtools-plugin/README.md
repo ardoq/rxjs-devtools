@@ -24,3 +24,13 @@ if (module.hot) {
   }
 }
 ```
+
+
+## Develop
+`yarn start`
+
+## Build
+`yarn build`
+
+## Publish new version
+`yarn deploy`
