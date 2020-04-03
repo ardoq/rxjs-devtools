@@ -2,7 +2,7 @@ import React from 'react';
 import { render } from 'react-dom';
 import App from './App';
 import { create } from 'rxjs-spy';
-import DevToolsPlugin from 'rxjs-spy-devtools-plugin/dist';
+import DevToolsPlugin from 'rxjs-spy-devtools-plugin';
 
 console.log('Devtools panel initialized');
 const spy = create();

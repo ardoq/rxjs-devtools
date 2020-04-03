@@ -25,7 +25,7 @@ type ListObservablesViewModel = {
   };
 };
 
-const EMISSION_LIMIT = 250;
+const EMISSION_LIMIT = 750;
 
 const streamEmission$: Observable<ListObservablesViewModel> = getPostMessage$().pipe(
   filter(isBatch),
@@ -76,7 +76,11 @@ const ListObservables = () => {
   const allEmissionsSorted = Object.values(emissionsByTag).flatMap(a => a).sort(sortByTimestamp);
   return (
     <Grid container spacing={2}>
-      <Typography variant="h6" gutterBottom>Capped at {EMISSION_LIMIT} emissions due to performance limitations</Typography>
+      <Grid item xs={12}>
+        <Typography color="textSecondary" gutterBottom>
+          Currently capped at ~{EMISSION_LIMIT} emissions due to performance limitations (the least recent emissions are dropped).
+        </Typography>
+      </Grid>
       <Grid item xs={3}>
         <Typography gutterBottom variant="h5">
           Tagged streams ({emissions.length} tags recorded)
