@@ -15,12 +15,16 @@ import {
 import { SubscriptionRef, SubscriberRef } from 'rxjs-spy/subscription-ref';
 import { filter, bufferTime } from 'rxjs/operators';
 import { read } from 'rxjs-spy/match';
+import serialize, { SerializeReplacer } from './serialize';
+
 
 let idCounter = 0;
 const identify = (args?: any) => String(idCounter++);
 
+
 type Options = {
   verbose?: boolean;
+  serializeReplacer?: SerializeReplacer
 };
 
 const BATCH_MILLISECONDS = 100;
@@ -105,7 +109,7 @@ export default class DevToolsPlugin extends BasePlugin {
       notificationType: NotificationType.NEXT,
       prefix: 'before',
       ref,
-      value: serialize(value)
+      value: serialize(value, this.options.serializeReplacer)
     });
   }
 
@@ -137,6 +141,7 @@ export default class DevToolsPlugin extends BasePlugin {
     if (!tag) {
       return;
     }
+
     this.notification$.next({
       id: identify(),
       notificationType,
@@ -150,28 +155,3 @@ export default class DevToolsPlugin extends BasePlugin {
     });
   }
 }
-
-const getCircularReplacer = () => {
-  const seen = new WeakSet();
-  return (_: any, value: any) => {
-    if (typeof value === 'object' && value !== null) {
-      if (seen.has(value)) {
-        return;
-      }
-      seen.add(value);
-    }
-    return value;
-  };
-};
-
-function stringifyJSONWithMaxDepth(val, replacer, depth) {
-  depth = isNaN(+depth) ? 1 : depth;
-  function _build(key, val, depth, o?, a?) {
-    return !val || typeof val != 'object' ? val : (a = Array.isArray(val), JSON.stringify(val, function (k, v) { if (a || depth > 0) { if (replacer) v = replacer(k, v); if (!k) return (a = Array.isArray(v), val = v); !o && (o = a ? [] : {}); o[k] = _build(k, v, a ? depth : depth - 1); } }), o || (a ? [] : {}));
-  }
-  return JSON.stringify(_build('', val, depth), null);
-}
-
-const serialize = (obj: any) => {
-  return stringifyJSONWithMaxDepth(obj, getCircularReplacer(), 5);
-};
