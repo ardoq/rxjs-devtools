@@ -18,54 +18,18 @@ import { StreamEmission } from './types';
 import { sortByTimestamp, groupBy, formatTimestamp } from './utils';
 import InspectEmissions from './InspectEmissions';
 import DenseTable from './DenseTable';
+import emission$, { EMISSION_LIMIT } from './emission$';
+import { connect } from 'rxbeach/react';
 
 type ListObservablesViewModel = {
   emissionsByTag: {
     [key: string]: StreamEmission[]
   };
 };
-
-const EMISSION_LIMIT = 750;
-
-const streamEmission$: Observable<ListObservablesViewModel> = getPostMessage$().pipe(
-  filter(isBatch),
-  map(message => {
-    return message.data
-      .filter(msg => msg.messageType === MessageTypes.NOTIFICATION).map(({ data }) => {
-        let value = {
-          'error': 'Parsing observable value failed'
-        };
-        try {
-          value = JSON.parse(data.observable.value);
-        } catch { }
-        return {
-          id: data.id,
-          tag: data.observable.tag,
-          value,
-          timestamp: data.timestamp,
-        } as StreamEmission;
-      });
-  }),
-  scan((values: StreamEmission[], next) => {
-    const aboveLimit = values.length + next.length - EMISSION_LIMIT;
-    if (aboveLimit > 0) {
-      return [...values.slice(aboveLimit), ...next];
-    } else {
-      return [...values, ...next];
-    }
-  }, []),
-  map(values => values.sort(sortByTimestamp)),
-  map(values => ({
-    emissionsByTag: groupBy(values, (value) => value.tag)
-  })),
-  shareReplay(1)
-);
-
-const ListObservables = () => {
-  const viewModel = useStream(streamEmission$);
+const ListObservables = ({ emissionsByTag }: ListObservablesViewModel) => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
   const [tagFilter, setTagFilter] = useState<string>('');
-  if (viewModel === NOT_YET_EMITTED) {
+  if (Object.keys(emissionsByTag).length === 0) {
     return (
       <Grid container spacing={2}>
         <Grid item xs={6}>
@@ -76,7 +40,6 @@ const ListObservables = () => {
       </Grid>
     );
   }
-  const { emissionsByTag } = viewModel;
   const emissions = Object.entries(emissionsByTag);
   const filteredEmissions = emissions.filter(([tag]) => tag.includes(tagFilter)).sort();
   const allEmissionsSorted = Object.values(emissionsByTag).flatMap(a => a).sort(sortByTimestamp);
@@ -116,4 +79,13 @@ const ListObservables = () => {
   );
 };
 
-export default ListObservables;
+const viewModel$ = emission$.pipe(
+  map(({ emissions }) => ({
+    emissionsByTag: groupBy(emissions, (value) => value.tag)
+  })),
+)
+
+export default connect(
+  ListObservables,
+  viewModel$
+);
