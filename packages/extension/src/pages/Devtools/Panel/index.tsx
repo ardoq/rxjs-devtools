@@ -6,14 +6,16 @@ import startStateStreams from './startStateStreams';
 import { action$ } from './action$';
 
 console.log('Devtools panel initialized');
-const spy = create();
+// Initialize spy
+create();
 
 startStateStreams(action$);
 
-
 if (module.hot) {
   module.hot.accept('./startStateStreams', () => startStateStreams(action$));
-  module.hot.accept('./App', () => render(<App />, window.document.querySelector('#app-container')));
+  module.hot.accept('./App', () =>
+    render(<App />, window.document.querySelector('#app-container'))
+  );
 }
 
 render(<App />, window.document.querySelector('#app-container'));

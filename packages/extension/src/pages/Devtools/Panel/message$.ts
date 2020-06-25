@@ -23,9 +23,9 @@ const getPostMessage$ = () => {
     });
 
     postMessage$ = fromEventPattern<[PostMessage, chrome.runtime.Port]>(
-      handler =>
+      (handler) =>
         _backgroundConnection.onMessage.addListener(handler as MessageListener),
-      handler =>
+      (handler) =>
         _backgroundConnection.onMessage.removeListener(
           handler as MessageListener
         )
@@ -33,7 +33,7 @@ const getPostMessage$ = () => {
       tag('postMessage$'),
       map(([post]) => post),
       share(),
-      tap(message => {
+      tap((message) => {
         console.log('Dev panel received message', message);
       })
     );

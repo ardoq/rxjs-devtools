@@ -1,36 +1,31 @@
 import { BasePlugin } from 'rxjs-spy';
 import { Spy } from 'rxjs-spy/spy-interface';
 import { Observable, Subscription, Subject } from 'rxjs';
-import {
-  EXTENSION_KEY
-} from '@shared/consts';
+import { EXTENSION_KEY } from '@shared/consts';
 import {
   Connection,
   PostMessage,
   Extension,
   MessageTypes,
   ObservableNotification,
-  NotificationType
+  NotificationType,
 } from '@shared/interfaces';
 import { SubscriptionRef, SubscriberRef } from 'rxjs-spy/subscription-ref';
 import { filter, bufferTime } from 'rxjs/operators';
 import { read } from 'rxjs-spy/match';
 import serialize, { SerializeReplacer } from './serialize';
 
-
 let idCounter = 0;
 const identify = (args?: any) => String(idCounter++);
 
-
 type Options = {
   verbose?: boolean;
-  serializeReplacer?: SerializeReplacer
+  serializeReplacer?: SerializeReplacer;
 };
 
 const BATCH_MILLISECONDS = 100;
 const BATCH_NOTIFICATIONS = 150;
 const RETRY_INIT_TIME = 500;
-
 
 export default class DevToolsPlugin extends BasePlugin {
   public options: Options;
@@ -48,7 +43,6 @@ export default class DevToolsPlugin extends BasePlugin {
   private initRetries = 0;
   private connection: Connection | undefined;
 
-
   constructor(spy: Spy, options: Options = { verbose: false }) {
     super('devTools');
     this.options = options;
@@ -64,34 +58,34 @@ export default class DevToolsPlugin extends BasePlugin {
       this.connection = extension.connect({ version: this.spy_.version });
       this.log('Extension connected');
 
-
-      this.notificationSubscription = this.notification$.pipe(
-        bufferTime(BATCH_MILLISECONDS, null, BATCH_NOTIFICATIONS),
-        filter(buffer => buffer.length > 0)
-      ).subscribe(notifications => {
-        this.log('Posting batch notification', notifications);
-        this.connection.post({
-          messageType: MessageTypes.BATCH,
-          data: notifications.map(notification => ({
-            messageType: MessageTypes.NOTIFICATION,
-            data: notification
-          }))
+      this.notificationSubscription = this.notification$
+        .pipe(
+          bufferTime(BATCH_MILLISECONDS, null, BATCH_NOTIFICATIONS),
+          filter((buffer) => buffer.length > 0)
+        )
+        .subscribe((notifications) => {
+          this.log('Posting batch notification', notifications);
+          this.connection.post({
+            messageType: MessageTypes.BATCH,
+            data: notifications.map((notification) => ({
+              messageType: MessageTypes.NOTIFICATION,
+              data: notification,
+            })),
+          });
         });
-      })
 
-      this.postMessage$ = new Observable<PostMessage>(observer =>
+      this.postMessage$ = new Observable<PostMessage>((observer) =>
         this.connection
-          ? this.connection.subscribe(post => observer.next(post))
-          : () => { }
+          ? this.connection.subscribe((post) => observer.next(post))
+          : () => {}
       );
 
-      this.postMessageSubscription = this.postMessage$
-        .subscribe(message => {
-          this.log('Message from extension', message);
-          if (this.connection) {
-            // this.connection.post(response);
-          }
-        });
+      this.postMessageSubscription = this.postMessage$.subscribe((message) => {
+        this.log('Message from extension', message);
+        if (this.connection) {
+          // this.connection.post(response);
+        }
+      });
     } else {
       this.log('Failed to connect, missing window key.');
       this.initRetries += 1;
@@ -109,7 +103,7 @@ export default class DevToolsPlugin extends BasePlugin {
       notificationType: NotificationType.NEXT,
       prefix: 'before',
       ref,
-      value: serialize(value, this.options.serializeReplacer)
+      value: serialize(value, this.options.serializeReplacer),
     });
   }
 
@@ -132,9 +126,17 @@ export default class DevToolsPlugin extends BasePlugin {
     }
   }
 
-  private sendNotification({ notificationType, value, ref, prefix }:
-    { notificationType: NotificationType, value: any, prefix: 'before' | 'after', ref: SubscriberRef }
-  ): void {
+  private sendNotification({
+    notificationType,
+    value,
+    ref,
+    prefix,
+  }: {
+    notificationType: NotificationType;
+    value: any;
+    prefix: 'before' | 'after';
+    ref: SubscriberRef;
+  }): void {
     const observable = ref.observable;
     const tag = read(observable);
     // For now skip anything that doesn't have a tag
@@ -150,8 +152,8 @@ export default class DevToolsPlugin extends BasePlugin {
       timestamp: Date.now(),
       observable: {
         tag,
-        value
-      }
+        value,
+      },
     });
   }
 }

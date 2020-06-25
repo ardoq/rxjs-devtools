@@ -5,5 +5,12 @@ test('serializes null', () => {
 });
 
 test('serializes maps', () => {
-  expect(serialize(new Map([['a', 1], ['b', 2]]))).toBe('[[\"a\",1],[\"b\",2]]');
+  expect(
+    serialize(
+      new Map([
+        ['a', 1],
+        ['b', 2],
+      ])
+    )
+  ).toBe('[["a",1],["b",2]]');
 });

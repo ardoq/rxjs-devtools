@@ -12,9 +12,7 @@ import {
   PANEL_MESSAGE,
 } from '../../../../shared/src/consts';
 
-import {
-  PostMessage
-} from '../../../../shared/src/interfaces';
+import { PostMessage } from '../../../../shared/src/interfaces';
 
 import { fromEventPattern } from 'rxjs';
 import {
@@ -42,21 +40,21 @@ const connections: {
 console.log('Background script initialized');
 
 const ports = fromEventPattern<Port>(
-  handler => chrome.runtime.onConnect.addListener(handler as PortListener),
-  handler => chrome.runtime.onConnect.removeListener(handler as PortListener)
+  (handler) => chrome.runtime.onConnect.addListener(handler as PortListener),
+  (handler) => chrome.runtime.onConnect.removeListener(handler as PortListener)
 ).pipe(share());
 
 const messages = (port: Port, teardown: () => void) =>
   fromEventPattern<[PostMessage, Port]>(
-    handler => port.onMessage.addListener(handler as PostMessageListener),
-    handler => port.onMessage.removeListener(handler as PostMessageListener)
+    (handler) => port.onMessage.addListener(handler as PostMessageListener),
+    (handler) => port.onMessage.removeListener(handler as PostMessageListener)
   ).pipe(
     map(([message]) => message),
     finalize(teardown),
     takeUntil(
       fromEventPattern(
-        handler => port.onDisconnect.addListener(handler as PortListener),
-        handler => port.onDisconnect.removeListener(handler as PortListener)
+        (handler) => port.onDisconnect.addListener(handler as PortListener),
+        (handler) => port.onDisconnect.removeListener(handler as PortListener)
       )
     ),
     share()
@@ -64,12 +62,12 @@ const messages = (port: Port, teardown: () => void) =>
 
 console.log('Subscribing to panel messages');
 const panelMessages = ports.pipe(
-  filter(port => port.name === PANEL_BACKGROUND_CONNECT),
+  filter((port) => port.name === PANEL_BACKGROUND_CONNECT),
   mergeMap(
-    port =>
+    (port) =>
       messages(port, () => {
         const key = Object.keys(connections).find(
-          key => connections[key].panelPort === port
+          (key) => connections[key].panelPort === port
         );
         if (key) {
           connections[key].panelPort = null;
@@ -109,11 +107,10 @@ panelMessages
   });
 
 const contentMessages = ports.pipe(
-  filter(
-    port =>
-      Boolean(port?.sender?.tab && port.name === CONTENT_BACKGROUND_CONNECT)
+  filter((port) =>
+    Boolean(port?.sender?.tab && port.name === CONTENT_BACKGROUND_CONNECT)
   ),
-  map(port => ({ key: port?.sender?.tab?.id, port })),
+  map((port) => ({ key: port?.sender?.tab?.id, port })),
   tap(({ key, port }) => {
     const connection = connections[key!];
     console.log('Connection to injected content script initialized');

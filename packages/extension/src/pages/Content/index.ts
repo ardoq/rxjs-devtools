@@ -10,14 +10,14 @@ import {
 import {
   Connection,
   Extension,
-  PostMessage
+  PostMessage,
 } from '../../../../shared/src/interfaces';
 
 const backgroundConnection = chrome.runtime.connect({
   name: CONTENT_BACKGROUND_CONNECT,
 });
 
-window.addEventListener('message', event => {
+window.addEventListener('message', (event) => {
   if (
     event.source === window &&
     event.data &&
@@ -31,7 +31,7 @@ window.addEventListener('message', event => {
   }
 });
 
-backgroundConnection.onMessage.addListener(message => {
+backgroundConnection.onMessage.addListener((message) => {
   const { postType } = message as PostMessage;
   if (postType === PANEL_MESSAGE) {
     window.postMessage({ ...message, source: 'rx-spy-devtools-panel' }, '*');
@@ -50,13 +50,13 @@ function installExtension(window: Window) {
       this._listener = null;
       this._subscribers = [];
       this.post({ messageType: 'connect', version });
-      this._listener = event => {
+      this._listener = (event) => {
         if (
           event.source === window &&
           event.data &&
           event.data.source === 'rx-spy-devtools-panel'
         ) {
-          this._subscribers.forEach(next => next(event.data));
+          this._subscribers.forEach((next) => next(event.data));
         }
       };
       window.addEventListener('message', this._listener);
