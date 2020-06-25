@@ -48,12 +48,16 @@ const ListObservables = ({ emissionsByTag }: ListObservablesViewModel) => {
           isRowSelected={(row) => row.tag === selectedTag}
           columns={[
             {
-              title: 'Tag',
+              label: 'Tag',
               valueRender: (row) => row.title,
+              width: 225,
+              dataKey: 'title',
             },
             {
-              title: 'Last emitted',
+              label: 'Last emitted',
               valueRender: (row) => formatTimestamp(row.emissions[0].timestamp),
+              width: 125,
+              dataKey: 'emissions',
             },
           ]}
           data={[

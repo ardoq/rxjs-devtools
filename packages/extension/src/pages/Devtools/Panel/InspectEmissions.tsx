@@ -47,20 +47,26 @@ const InspectEmissions = ({
             isRowSelected={(emission) => selectedEmission === emission}
             columns={[
               {
-                title: 'Type',
+                label: 'Type',
                 valueRender: (emission) =>
                   emission.tag === 'action$' ? `Action` : `Tagged stream`,
+                width: 200,
+                dataKey: 'tag',
               },
               {
-                title: 'Value',
+                label: 'Value',
                 valueRender: (emission) =>
                   emission.tag === 'action$'
                     ? emission.value.type
                     : emission.tag,
+                width: 300,
+                dataKey: 'tag',
               },
               {
-                title: 'Timestamp',
+                label: 'Timestamp',
                 valueRender: (emission) => formatTimestamp(emission.timestamp),
+                width: 125,
+                dataKey: 'timestamp',
               },
             ]}
             data={emissions.filter(

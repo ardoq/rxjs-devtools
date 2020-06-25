@@ -5,7 +5,7 @@ import { isBatch } from '../../../../../shared/src/guards';
 import { MessageTypes } from '../../../../../shared/src/interfaces';
 import { sortByTimestamp } from './utils';
 
-export const EMISSION_LIMIT = 750;
+export const EMISSION_LIMIT = 5000;
 
 type EmissionState = {
   emissions: StreamEmission[];
@@ -34,7 +34,9 @@ const handlePostMessageUpdate = reducer(
               };
               try {
                 value = JSON.parse(data.observable.value);
-              } catch {}
+              } catch {
+                // do nothing
+              }
               return {
                 id: data.id,
                 tag: data.observable.tag,
@@ -49,6 +51,10 @@ const handlePostMessageUpdate = reducer(
   }
 );
 
+/**
+ * Collects stream emissions that are coming
+ * from the application
+ */
 const emission$ = persistentReducedStream(
   'emission$',
   {
