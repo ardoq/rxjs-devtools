@@ -1,5 +1,5 @@
 import { persistentReducedStream, reducer } from 'rxbeach';
-import getPostMessage$ from './message$';
+import getPostMessage$ from './postMessage$';
 import { StreamEmission } from './types';
 import { isBatch } from '../../../../../shared/src/guards';
 import { MessageTypes } from '../../../../../shared/src/interfaces';

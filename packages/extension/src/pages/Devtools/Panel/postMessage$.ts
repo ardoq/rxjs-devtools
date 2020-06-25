@@ -11,7 +11,7 @@ type MessageListener = (message: any) => void;
 
 let postMessage$: Observable<PostMessage>;
 
-const getPostMessage$ = () => {
+const getPostMessage$ = (): Observable<PostMessage> => {
   if (!postMessage$) {
     const tabId = chrome.devtools.inspectedWindow.tabId;
     const _backgroundConnection = chrome.runtime.connect({
