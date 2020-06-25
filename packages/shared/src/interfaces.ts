@@ -20,7 +20,7 @@ export enum MessageTypes {
   CONNECT = 'connect',
   NOTIFICATION = 'notification',
   BROADCAST = 'broadcast',
-  BATCH = 'batch'
+  BATCH = 'batch',
 }
 
 interface PostMessageBase {
@@ -31,33 +31,35 @@ interface PostMessageBase {
 export type BatchMessage = {
   messageType: MessageTypes.BATCH;
   data: Message[];
-}
+};
 
 export type BatchPostMessage = PostMessageBase & BatchMessage;
 
-export type PostMessage = BatchPostMessage | {
-  messageType: MessageTypes.CONNECT
-};
+export type PostMessage =
+  | BatchPostMessage
+  | {
+      messageType: MessageTypes.CONNECT;
+    };
 
 export type Message = {
   messageType: MessageTypes.NOTIFICATION;
   data: ObservableNotification;
-}
+};
 
 export enum NotificationType {
   NEXT = 'next',
   ERROR = 'error',
-  COMPLETE = 'complete'
+  COMPLETE = 'complete',
 }
 
 export interface ObservableNotification {
-  notificationType: NotificationType,
-  prefix: 'before' | 'after',
-  id: string,
-  tick: number,
-  timestamp: number,
+  notificationType: NotificationType;
+  prefix: 'before' | 'after';
+  id: string;
+  tick: number;
+  timestamp: number;
   observable: {
-    value?: any,
-    tag: string
-  }
+    value?: any;
+    tag: string;
+  };
 }
