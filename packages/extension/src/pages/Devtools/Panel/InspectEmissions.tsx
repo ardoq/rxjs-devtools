@@ -89,6 +89,7 @@ const InspectEmissions = ({
         <Grid item xs={7}>
           {selectedEmission && (
             <ReactJson
+              collapsed={3}
               style={{
                 fontSize: 14,
                 minHeight: 300,
