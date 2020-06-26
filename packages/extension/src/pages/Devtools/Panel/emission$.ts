@@ -4,6 +4,7 @@ import { StreamEmission } from './types';
 import { isBatch } from '../../../../../shared/src/guards';
 import { MessageTypes } from '../../../../../shared/src/interfaces';
 import { sortByTimestamp } from './utils';
+import { clearEmissions } from './actions';
 
 export const EMISSION_LIMIT = 5000;
 
@@ -51,6 +52,10 @@ const handlePostMessageUpdate = reducer(
   }
 );
 
+const handleClearEmissions = reducer<EmissionState>(clearEmissions, () => ({
+  emissions: [],
+}));
+
 /**
  * Collects stream emissions that are coming
  * from the application
@@ -60,7 +65,7 @@ const emission$ = persistentReducedStream(
   {
     emissions: [],
   },
-  [handlePostMessageUpdate]
+  [handlePostMessageUpdate, handleClearEmissions]
 );
 
 export default emission$;

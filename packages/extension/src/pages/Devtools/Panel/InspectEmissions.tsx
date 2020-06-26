@@ -13,16 +13,17 @@ type InspectEmissionsViewModel = {
 const InspectEmissions = ({
   selectedTag,
   emissions,
-}: InspectEmissionsViewModel) => {
-  const [selectedEmission, setSelectedEmission] = useState<StreamEmission>(
-    emissions[0]
-  );
+}: InspectEmissionsViewModel): JSX.Element => {
+  const [
+    selectedEmission,
+    setSelectedEmission,
+  ] = useState<StreamEmission | null>(emissions[0] || null);
   const [rawFilters, setFilter] = useState('');
   useEffect(() => {
-    if (selectedTag !== selectedEmission.tag) {
+    if (selectedTag !== selectedEmission?.tag) {
       setSelectedEmission(emissions[0]);
     }
-  }, [selectedTag]);
+  }, [selectedTag, emissions, selectedEmission]);
 
   const filters = rawFilters
     .split(',')
@@ -81,16 +82,18 @@ const InspectEmissions = ({
           />
         </Grid>
         <Grid item xs={7}>
-          <ReactJson
-            style={{
-              fontSize: 14,
-              minHeight: 300,
-              height: '70vh',
-              overflowY: 'scroll',
-            }}
-            theme="monokai"
-            src={selectedEmission}
-          />
+          {selectedEmission && (
+            <ReactJson
+              style={{
+                fontSize: 14,
+                minHeight: 300,
+                height: '70vh',
+                overflowY: 'scroll',
+              }}
+              theme="monokai"
+              src={selectedEmission}
+            />
+          )}
         </Grid>
       </Grid>
     </>

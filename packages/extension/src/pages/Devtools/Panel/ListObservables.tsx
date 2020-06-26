@@ -1,12 +1,14 @@
 import React, { useState } from 'react';
 import { map } from 'rxjs/operators';
-import { Grid, Typography } from '@material-ui/core';
+import { Grid, Typography, Button } from '@material-ui/core';
 import { StreamEmission } from './types';
 import { sortByTimestamp, groupBy, formatTimestamp } from './utils';
 import InspectEmissions from './InspectEmissions';
 import DenseTable from './DenseTable';
 import emission$, { EMISSION_LIMIT } from './emission$';
 import { connect } from 'rxbeach/react';
+import { dispatchAction } from './action$';
+import { clearEmissions } from './actions';
 
 type ListObservablesViewModel = {
   emissionsByTag: {
@@ -16,17 +18,6 @@ type ListObservablesViewModel = {
 const ListObservables = ({ emissionsByTag }: ListObservablesViewModel) => {
   const [selectedTag, setSelectedTag] = useState<string | null>(null);
 
-  if (Object.keys(emissionsByTag).length === 0) {
-    return (
-      <Grid container spacing={2}>
-        <Grid item xs={6}>
-          <Typography gutterBottom variant="h5">
-            ...waiting for first emission
-          </Typography>
-        </Grid>
-      </Grid>
-    );
-  }
   const emissions = Object.entries(emissionsByTag);
   const allEmissionsSorted = Object.values(emissionsByTag)
     .flatMap((a) => a)
@@ -37,6 +28,12 @@ const ListObservables = ({ emissionsByTag }: ListObservablesViewModel) => {
         <Typography color="textSecondary" gutterBottom>
           Currently capped at ~{EMISSION_LIMIT} emissions due to performance
           limitations (the least recent emissions are dropped).
+          <Button
+            color="secondary"
+            onClick={() => dispatchAction(clearEmissions())}
+          >
+            Clear All Emissions
+          </Button>
         </Typography>
       </Grid>
       <Grid item xs={3}>
@@ -55,7 +52,10 @@ const ListObservables = ({ emissionsByTag }: ListObservablesViewModel) => {
             },
             {
               label: 'Last emitted',
-              valueRender: (row) => formatTimestamp(row.emissions[0].timestamp),
+              valueRender: (row) =>
+                row.emissions[0]
+                  ? formatTimestamp(row.emissions[0].timestamp)
+                  : 'Never',
               width: 125,
               dataKey: 'emissions',
             },
