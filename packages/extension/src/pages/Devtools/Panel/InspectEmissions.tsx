@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import ReactJson from 'react-json-view';
 import { Typography, Grid, TextField } from '@material-ui/core';
 import { formatTimestamp } from './utils';
 import { StreamEmission } from './types';
 import DenseTable from './DenseTable';
+import { debounce } from 'lodash';
 
 type InspectEmissionsViewModel = {
   selectedTag: string | null;
@@ -23,7 +24,11 @@ const InspectEmissions = ({
     if (selectedTag !== selectedEmission?.tag) {
       setSelectedEmission(emissions[0]);
     }
-  }, [selectedTag, emissions, selectedEmission]);
+  }, [selectedTag]);
+
+  const debouncedSetFilter = useCallback(
+    debounce((value: string) => setFilter(value), 200)
+  );
 
   const filters = rawFilters
     .split(',')
@@ -39,7 +44,7 @@ const InspectEmissions = ({
       <TextField
         fullWidth
         label="Filter by tag or action type (comma-separated list):"
-        onChange={(e) => setFilter(e.target.value)}
+        onChange={(e) => debouncedSetFilter(e.target.value)}
       />
       <Grid container spacing={2}>
         <Grid item xs={5}>
