@@ -1,71 +1,120 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useCallback } from 'react';
 import ReactJson from 'react-json-view';
-import { Typography, Grid, TextField } from '@material-ui/core';
+import {
+  Typography,
+  Grid,
+  TextField,
+  Button,
+  Tooltip,
+  colors,
+} from '@material-ui/core';
 import { formatTimestamp } from './utils';
 import { StreamEmission } from './types';
 import DenseTable from './DenseTable';
 import { debounce } from 'lodash';
+import { EMISSION_LIMIT } from './emission$';
+import { dispatchAction } from './action$';
+import { clearEmissions } from './actions';
+import WarningIcon from '@material-ui/icons/Warning';
+import StorageIcon from '@material-ui/icons/Storage';
+import NotificationsActiveIcon from '@material-ui/icons/NotificationsActive';
+import styled from 'styled-components';
 
 type InspectEmissionsViewModel = {
-  selectedTag: string | null;
   emissions: StreamEmission[];
 };
 
+const StateIcon = styled(StorageIcon)`
+  margin-right: 8px;
+  vertical-align: bottom;
+`;
+
+const ActionIcon = styled(NotificationsActiveIcon)`
+  margin-right: 8px;
+  vertical-align: bottom;
+`;
+
 const InspectEmissions = ({
-  selectedTag,
   emissions,
 }: InspectEmissionsViewModel): JSX.Element => {
   const [
     selectedEmission,
     setSelectedEmission,
-  ] = useState<StreamEmission | null>(emissions[0] || null);
+  ] = useState<StreamEmission | null>(null);
   const [rawFilters, setFilter] = useState('');
-  useEffect(() => {
-    if (selectedTag !== selectedEmission?.tag) {
-      setSelectedEmission(emissions[0]);
-    }
-  }, [selectedTag]);
 
   const debouncedSetFilter = useCallback(
-    debounce((value: string) => setFilter(value), 200)
+    debounce((value: string) => setFilter(value), 200),
+    [setFilter]
   );
 
   const filters = rawFilters
     .split(',')
     .map((rawFilter) => rawFilter.trim())
     .filter(Boolean);
+
+  const filteredData = emissions.filter(
+    (emission) =>
+      !filters.length ||
+      filters.some(
+        (filter) =>
+          emission.tag.includes(filter) ||
+          emission.value?.type?.includes(filter)
+      )
+  );
+
   return (
     <>
-      <Typography variant="h5" gutterBottom>
-        {selectedTag ? `Selected Tag: ${selectedTag}` : 'All tags'} (
-        {emissions.length} emissions recorded)
-      </Typography>
-
-      <TextField
-        fullWidth
-        label="Filter by tag or action type (comma-separated list):"
-        onChange={(e) => debouncedSetFilter(e.target.value)}
-      />
-      <Grid container spacing={2}>
+      <Grid container spacing={2} style={{ height: '100%' }}>
         <Grid item xs={5}>
+          <Typography variant="h5" gutterBottom>
+            {emissions.length} emissions recorded
+            {emissions.length === EMISSION_LIMIT && (
+              <Tooltip
+                title={`Currently capped at ~${EMISSION_LIMIT} emissions due to performance limitations (the least recent emissions are dropped).`}
+              >
+                <WarningIcon
+                  htmlColor={colors.orange.A400}
+                  style={{
+                    marginLeft: '4px',
+                    verticalAlign: 'middle',
+                  }}
+                />
+              </Tooltip>
+            )}
+            <Button
+              style={{ float: 'right' }}
+              color="secondary"
+              onClick={() => dispatchAction(clearEmissions())}
+            >
+              Clear All
+            </Button>
+          </Typography>
+
+          <TextField
+            fullWidth
+            label="Filter by name (comma-separated list):"
+            onChange={(e) => debouncedSetFilter(e.target.value)}
+          />
           <DenseTable
             onRowClick={(emission) => setSelectedEmission(emission)}
             isRowSelected={(emission) => selectedEmission === emission}
             columns={[
               {
-                label: 'Type',
+                label: 'Name',
                 valueRender: (emission) =>
-                  emission.tag === 'action$' ? `Action` : `Tagged stream`,
-                width: 200,
-                dataKey: 'tag',
-              },
-              {
-                label: 'Value',
-                valueRender: (emission) =>
-                  emission.tag === 'action$'
-                    ? emission.value.type
-                    : emission.tag,
-                width: 300,
+                  emission.tag === 'action$' ? (
+                    <>
+                      <ActionIcon fontSize="small" />
+                      {emission.value?.type}
+                    </>
+                  ) : (
+                    <>
+                      <StateIcon fontSize="small" />
+                      {emission.tag}
+                    </>
+                  ),
+                width: 400,
                 dataKey: 'tag',
               },
               {
@@ -75,25 +124,17 @@ const InspectEmissions = ({
                 dataKey: 'timestamp',
               },
             ]}
-            data={emissions.filter(
-              (emission) =>
-                !filters.length ||
-                filters.some(
-                  (filter) =>
-                    emission.tag.includes(filter) ||
-                    emission.value?.type?.includes(filter)
-                )
-            )}
+            data={filteredData}
           />
         </Grid>
-        <Grid item xs={7}>
+        <Grid item xs={7} style={{ height: '100%' }}>
           {selectedEmission && (
             <ReactJson
               collapsed={3}
               style={{
                 fontSize: 14,
                 minHeight: 300,
-                height: '70vh',
+                height: '100%',
                 overflowY: 'scroll',
               }}
               theme="monokai"

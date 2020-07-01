@@ -28,7 +28,6 @@ import {
 type PostMessageListener = (message: PostMessage) => void;
 type Port = chrome.runtime.Port;
 type PortListener = (port: chrome.runtime.Port) => void;
-type TabId = any;
 
 const connections: {
   [key: string]: {
@@ -66,11 +65,11 @@ const panelMessages = ports.pipe(
   mergeMap(
     (port) =>
       messages(port, () => {
-        const key = Object.keys(connections).find(
+        const connectionKey = Object.keys(connections).find(
           (key) => connections[key].panelPort === port
         );
-        if (key) {
-          connections[key].panelPort = null;
+        if (connectionKey) {
+          connections[connectionKey].panelPort = null;
         }
       }),
     (port, message) => ({ key: message.tabId, port, message })
@@ -92,7 +91,7 @@ panelMessages
 
 panelMessages
   .pipe(filter(({ message }) => message.postType !== PANEL_BACKGROUND_INIT))
-  .subscribe(({ key, port, message }) => {
+  .subscribe(({ key, message }) => {
     const connection = connections[key];
     if (!connection) {
       console.warn('No connection');
@@ -129,7 +128,7 @@ const contentMessages = ports.pipe(
   )
 );
 
-contentMessages.subscribe(({ key, port, message }) => {
+contentMessages.subscribe(({ key, message }) => {
   const connection = connections[key!];
   if (!connection) {
     console.warn('No connection');

@@ -1,18 +1,13 @@
 import React, { Component } from 'react';
-import ListObservables from './ListObservables';
+import ListEmissions from './ListEmissions';
 import styled from 'styled-components';
 import { ThemeProvider, createMuiTheme, Paper } from '@material-ui/core';
 import WebFont from 'webfontloader';
 
 WebFont.load({ google: { families: ['Roboto:300,400,500'] } });
 const Wrapper = styled(Paper)`
-  margin: 0px;
-  padding: 40px 20px;
-  position: absolute;
-  top: 0px;
-  right: 0px;
-  left: 0px;
-  bottom: 0px;
+  height: 100%;
+  width: 100%;
 `;
 
 const darkTheme = createMuiTheme({
@@ -26,7 +21,7 @@ class App extends Component {
     return (
       <ThemeProvider theme={darkTheme}>
         <Wrapper>
-          <ListObservables />
+          <ListEmissions />
         </Wrapper>
       </ThemeProvider>
     );

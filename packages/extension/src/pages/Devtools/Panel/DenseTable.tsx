@@ -1,5 +1,5 @@
 import React from 'react';
-import { TableCell, Paper, colors } from '@material-ui/core';
+import { TableCell, colors } from '@material-ui/core';
 import styled from 'styled-components';
 import { AutoSizer, Column, Table } from 'react-virtualized';
 
@@ -26,12 +26,13 @@ const StyledTable = (styled(Table)`
   .dense-table-row {
     align-items: center;
     box-sizing: border-box;
-    cursor: pointer;
     display: flex;
     justify-content: space-between;
   }
 
   .dense-table-row {
+    cursor: pointer;
+
     &:focus {
       outline: none;
     }
@@ -62,49 +63,47 @@ function DenseTable<T>({
   isRowSelected,
 }: ViewProps<T>): JSX.Element {
   return (
-    <Paper style={{ height: '100%', width: '100%' }}>
-      <AutoSizer>
-        {({ height, width }) => (
-          <StyledTable
-            height={height}
-            width={width}
-            rowCount={data.length}
-            rowHeight={50}
-            headerHeight={50}
-            headerClassName={'dense-table-header'}
-            rowClassName={({ index }) =>
-              [
-                index === -1 && 'dense-table-row-header',
-                index !== -1 && 'dense-table-row',
-                data[index] && isRowSelected(data[index]) && 'selected',
-              ]
-                .filter(Boolean)
-                .join(' ')
-            }
-            rowGetter={({ index }) => data[index]}
-            gridStyle={{
-              direction: 'inherit',
-            }}
-            onRowClick={({ rowData }) => onRowClick(rowData)}
-          >
-            {columns.map(({ dataKey, valueRender, ...other }) => (
-              <Column
-                key={dataKey}
-                dataKey={dataKey}
-                headerRenderer={({ label }) => (
-                  <StyledTableCell>{label}</StyledTableCell>
-                )}
-                className={'dense-table-column'}
-                cellRenderer={({ rowData }) => (
-                  <StyledTableCell>{valueRender(rowData)}</StyledTableCell>
-                )}
-                {...other}
-              />
-            ))}
-          </StyledTable>
-        )}
-      </AutoSizer>
-    </Paper>
+    <AutoSizer>
+      {({ height, width }) => (
+        <StyledTable
+          height={height}
+          width={width}
+          rowCount={data.length}
+          rowHeight={40}
+          headerHeight={40}
+          headerClassName={'dense-table-header'}
+          rowClassName={({ index }) =>
+            [
+              index === -1 && 'dense-table-row-header',
+              index !== -1 && 'dense-table-row',
+              data[index] && isRowSelected(data[index]) && 'selected',
+            ]
+              .filter(Boolean)
+              .join(' ')
+          }
+          rowGetter={({ index }) => data[index]}
+          gridStyle={{
+            direction: 'inherit',
+          }}
+          onRowClick={({ rowData }) => onRowClick(rowData)}
+        >
+          {columns.map(({ dataKey, valueRender, ...other }) => (
+            <Column
+              key={dataKey}
+              dataKey={dataKey}
+              headerRenderer={({ label }) => (
+                <StyledTableCell>{label}</StyledTableCell>
+              )}
+              className={'dense-table-column'}
+              cellRenderer={({ rowData }) => (
+                <StyledTableCell>{valueRender(rowData)}</StyledTableCell>
+              )}
+              {...other}
+            />
+          ))}
+        </StyledTable>
+      )}
+    </AutoSizer>
   );
 }
 

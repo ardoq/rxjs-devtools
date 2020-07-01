@@ -26,6 +26,7 @@ export enum MessageTypes {
 interface PostMessageBase {
   postId: string;
   postType: string;
+  tabId: number;
 }
 
 export type BatchMessage = {
@@ -37,9 +38,9 @@ export type BatchPostMessage = PostMessageBase & BatchMessage;
 
 export type PostMessage =
   | BatchPostMessage
-  | {
+  | (PostMessageBase & {
       messageType: MessageTypes.CONNECT;
-    };
+    });
 
 export type Message = {
   messageType: MessageTypes.NOTIFICATION;
