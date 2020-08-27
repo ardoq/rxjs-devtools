@@ -10,7 +10,5 @@
     ]
   },
   "files": [],
-  "include": [
-    "./src"
-  ],
+  "include": ["./src"]
 }

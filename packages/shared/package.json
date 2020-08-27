@@ -21,6 +21,6 @@
     "url": "https://github.com/ardoq/rxjs-devtools/issues"
   },
   "dependencies": {
-    "rxjs-spy": "^7.5.1"
+    "rxjs-spy": "^7.5.3"
   }
 }
