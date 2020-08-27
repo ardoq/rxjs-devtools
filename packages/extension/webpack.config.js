@@ -1,12 +1,12 @@
-var webpack = require('webpack'),
-  path = require('path'),
-  fileSystem = require('fs'),
-  env = require('./utils/env'),
-  { CleanWebpackPlugin } = require('clean-webpack-plugin'),
-  CopyWebpackPlugin = require('copy-webpack-plugin'),
-  HtmlWebpackPlugin = require('html-webpack-plugin'),
-  WriteFilePlugin = require('write-file-webpack-plugin');
-var secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js');
+const webpack = require('webpack');
+const path = require('path');
+const fileSystem = require('fs');
+const env = require('./utils/env');
+const { CleanWebpackPlugin } = require('clean-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
+const WriteFilePlugin = require('write-file-webpack-plugin');
+const secretsPath = path.join(__dirname, 'secrets.' + env.NODE_ENV + '.js');
 
 var fileExtensions = [
   'jpg',
@@ -32,7 +32,14 @@ var options = {
   entry: {
     options: path.join(__dirname, 'src', 'pages', 'Options', 'index.jsx'),
     devtools: path.join(__dirname, 'src', 'pages', 'Devtools', 'index.ts'),
-    panel: path.join(__dirname, 'src', 'pages', 'Devtools', 'Panel', 'index.tsx'),
+    panel: path.join(
+      __dirname,
+      'src',
+      'pages',
+      'Devtools',
+      'Panel',
+      'index.tsx'
+    ),
     background: path.join(__dirname, 'src', 'pages', 'Background', 'index.ts'),
     contentScript: path.join(__dirname, 'src', 'pages', 'Content', 'index.ts'),
   },
@@ -68,7 +75,7 @@ var options = {
     ],
   },
   resolve: {
-    alias: alias,
+    alias,
     extensions: fileExtensions
       .map((extension) => '.' + extension)
       .concat(['.jsx', '.js', '.css', '.tsx', '.ts']),
@@ -83,36 +90,40 @@ var options = {
     // expose and write the allowed env vars on the compiled bundle
     new webpack.EnvironmentPlugin(['NODE_ENV']),
     new CopyWebpackPlugin(
-      [
-        {
-          from: 'src/manifest.json',
-          to: path.join(__dirname, 'build'),
-          force: true,
-          transform: function (content, path) {
-            // generates the manifest file using the package.json informations
-            return Buffer.from(
-              JSON.stringify({
-                description: process.env.npm_package_description,
-                version: process.env.npm_package_version,
-                ...JSON.parse(content.toString()),
-              })
-            );
+      {
+        patterns: [
+          {
+            from: 'src/manifest.json',
+            to: path.join(__dirname, 'build'),
+            force: true,
+            transform: function (content) {
+              // generates the manifest file using the package.json informations
+              return Buffer.from(
+                JSON.stringify({
+                  description: process.env.npm_package_description,
+                  version: process.env.npm_package_version,
+                  ...JSON.parse(content.toString()),
+                })
+              );
+            },
           },
-        },
-      ],
+        ],
+      },
       {
         logLevel: 'info',
         copyUnmodified: true,
       }
     ),
     new CopyWebpackPlugin(
-      [
-        {
-          from: 'src/pages/Content/content.styles.css',
-          to: path.join(__dirname, 'build'),
-          force: true,
-        },
-      ],
+      {
+        patterns: [
+          {
+            from: 'src/pages/Content/content.styles.css',
+            to: path.join(__dirname, 'build'),
+            force: true,
+          },
+        ],
+      },
       {
         logLevel: 'info',
         copyUnmodified: true,
@@ -128,7 +139,14 @@ var options = {
       chunks: ['devtools'],
     }),
     new HtmlWebpackPlugin({
-      template: path.join(__dirname, 'src', 'pages', 'Devtools', 'Panel', 'index.html'),
+      template: path.join(
+        __dirname,
+        'src',
+        'pages',
+        'Devtools',
+        'Panel',
+        'index.html'
+      ),
       filename: 'panel.html',
       chunks: ['panel'],
     }),
