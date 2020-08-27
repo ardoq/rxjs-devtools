@@ -1,7 +1,6 @@
 const path = require('path');
-const webpack = require('webpack');
 const { CleanWebpackPlugin } = require('clean-webpack-plugin');
-const DtsBundleWebpack = require('dts-bundle-webpack')
+const DtsBundleWebpack = require('dts-bundle-webpack');
 
 module.exports = {
   entry: ['./src/index.ts'],
@@ -17,27 +16,27 @@ module.exports = {
   },
   resolve: {
     alias: {
-      '@shared': path.resolve('../shared/src/')
+      '@shared': path.resolve('../shared/src/'),
     },
     extensions: ['.tsx', '.ts', '.js', '.json'],
   },
   externals: {
-    'rxjs': {
+    rxjs: {
       commonjs: 'rxjs',
       commonjs2: 'rxjs',
-      amd: 'rxjs'
+      amd: 'rxjs',
     },
     'rxjs-spy': {
       commonjs: 'rxjs-spy',
       commonjs2: 'rxjs-spy',
-      amd: 'rxjs-spy'
+      amd: 'rxjs-spy',
     },
   },
   output: {
     path: `${__dirname}/dist`,
     filename: 'index.js',
     library: 'rxjs-spy-devtools-plugin',
-    libraryTarget: 'umd'
+    libraryTarget: 'umd',
   },
   plugins: [
     new CleanWebpackPlugin(),
@@ -46,6 +45,6 @@ module.exports = {
       name: 'rxjs-spy-devtools-plugin',
       baseDir: 'dist',
       main: 'dist/rxjs-spy-devtools-plugin/src/index.d.ts',
-    })
-  ]
+    }),
+  ],
 };

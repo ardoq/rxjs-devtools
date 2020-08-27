@@ -1,5 +1,4 @@
 import { BasePlugin } from 'rxjs-spy';
-import { Spy } from 'rxjs-spy/spy-interface';
 import { Observable, Subscription, Subject } from 'rxjs';
 import { EXTENSION_KEY } from '@shared/consts';
 import {
@@ -10,13 +9,14 @@ import {
   ObservableNotification,
   NotificationType,
 } from '@shared/interfaces';
-import { SubscriptionRef, SubscriberRef } from 'rxjs-spy/subscription-ref';
 import { filter, bufferTime } from 'rxjs/operators';
-import { read } from 'rxjs-spy/match';
 import serialize, { SerializeReplacer } from './serialize';
+import { Spy } from 'rxjs-spy/cjs/spy-interface';
+import { SubscriptionRef, SubscriberRef } from 'rxjs-spy/cjs/subscription-ref';
+import { read } from 'rxjs-spy/cjs/match';
 
 let idCounter = 0;
-const identify = (args?: any) => String(idCounter++);
+const identify = () => String(idCounter++);
 
 type Options = {
   verbose?: boolean;
@@ -76,8 +76,8 @@ export default class DevToolsPlugin extends BasePlugin {
 
       this.postMessage$ = new Observable<PostMessage>((observer) =>
         this.connection
-          ? this.connection.subscribe((post) => observer.next(post))
-          : () => {}
+          ? this.connection.subscribe((post: any) => observer.next(post))
+          : () => undefined
       );
 
       this.postMessageSubscription = this.postMessage$.subscribe((message) => {

@@ -11,7 +11,7 @@ import DevToolsPlugin from 'rxjs-spy-devtools-plugin';
 
 const spy = create();
 const devtoolsPlugin = new DevToolsPlugin(spy, {
-  verbose: false
+  verbose: false,
 });
 spy.plug(devtoolsPlugin);
 
@@ -29,17 +29,20 @@ if (module.hot) {
 
 4. Load the [chrome extension](../../README.md#installing-the-extension-in-developer-mode)
 
-
 ## Develop
+
 `yarn start`
 
 ## Build
+
 `yarn build`
 
 ## Publish new version
+
 `yarn deploy`
 
 ## Using yarn link to test the library without publishing a new version
+
 1. Run `yarn start`. This will continuously build the package when you make changes in `/src`.
 2. Run `yarn link`. This [allows yarn to install the package via symlinks](https://yarnpkg.com/lang/en/docs/cli/link/).
 3. In the root folder of the repostiory that you would like to link (i.e. ardoq-front), run `yarn link rxjs-spy-devtools-plugin`. This tells yarn to install the package from the dist folder.
