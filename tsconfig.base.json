@@ -1,17 +1,12 @@
 {
-  "exclude": [
-    "node_modules",
-  ],
+  "exclude": ["node_modules"],
   "compilerOptions": {
     "composite": true,
     "declaration": true,
     "declarationMap": true,
     "target": "es5",
     "module": "esnext",
-    "lib": [
-      "dom",
-      "esnext"
-    ],
+    "lib": ["dom", "esnext"],
     "strict": true,
     "importHelpers": true,
     "sourceMap": true,
@@ -20,5 +15,5 @@
     "jsx": "react",
     "esModuleInterop": true,
     "downlevelIteration": true
-  },
+  }
 }
