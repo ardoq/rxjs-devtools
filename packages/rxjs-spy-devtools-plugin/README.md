@@ -17,11 +17,9 @@ spy.plug(devtoolsPlugin);
 
 // We must teardown the spy if we're hot-reloading:
 if (module.hot) {
-  if (module.hot) {
-    module.hot.dispose(() => {
-      spy.teardown();
-    });
-  }
+  module.hot.dispose(() => {
+    spy.teardown();
+  });
 }
 ```
 
